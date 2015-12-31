@@ -31,21 +31,25 @@ def get_product_info(pn):
     return r
 
 
-def process_message(data):
+def process_text(text, channel):
 
     try:
-        if 'text' in data:
-            m_pn = re.match('^[0-9]+', data['text'])
-            if m_pn != None:
-                p_info = get_product_info(m_pn.group(0))
+        for num in re.findall(r'\d+', text):
+            p_info = get_product_info(num)
 
-                if p_info['found']:
-                    print "[" + str(datetime.datetime.now()) + "] " + m_pn.group(0) + ": " + p_info['title']
-                    outputs.append([data['channel'], "{pn} : {name}".format(pn = m_pn.group(0), name = p_info['title'])])
-                    outputs.append([data['channel'], "{url}".format(url = p_info['url'])])
-                    if 'image' in p_info:
-                        outputs.append([data['channel'], "{image}".format(image = p_info['image'])])
+            if p_info['found']:
+                print "[" + str(datetime.datetime.now()) + "] " + num + ": " + p_info['title']
+                outputs.append([channel, "{pn} : {name}".format(pn = num, name = p_info['title'])])
+                outputs.append([channel, "{url}".format(url = p_info['url'])])
+                if 'image' in p_info:
+                    outputs.append([channel, "{image}".format(image = p_info['image'])])
     except Exception as e:
         print traceback.format_exc()
         raise e
+
+
+def process_message(data):
+
+    if 'text' in data:
+        process_message(data['text'], data['channel'])
 

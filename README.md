@@ -12,4 +12,10 @@ Installation
 ---
 
 1. Install python-rtmbot
-1. Download slackrtm-plugin-lego-finder 
+  * SLACK_TOKEN is required, which is not added for security reason. Ask Choi Kirin or make your own one. 
+1. Download slackrtm-plugin-lego-finder as submodule
+```
+cd ${PYTHON_RTMBOT_HOME}
+git submodule add -f https://github.com/genxhippies/slackrtm-plugin-lego-finder.git plugins/l
+ego-finder
+```

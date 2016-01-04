@@ -31,7 +31,7 @@ def get_product_info(pn):
     return r
 
 
-def process_text(text, channel):
+def _process_text(text, channel):
 
     try:
         for num in re.findall(r'\d+', text):
@@ -51,5 +51,5 @@ def process_text(text, channel):
 def process_message(data):
 
     if 'text' in data:
-        process_message(data['text'], data['channel'])
+        _process_text(data['text'], data['channel'])
 

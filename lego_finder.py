@@ -3,7 +3,7 @@ import urllib2
 import traceback
 import datetime
 
-from rtmbot import dbg
+import logging
 
 crontable = []
 outputs = []
@@ -34,7 +34,7 @@ def get_product_info(pn):
 
 
 def _process_text(text, channel):
-    dbg('[Process text] %s'%str(text))
+    logging.info('[Process text] %s'%text)
 
     try:
         for num in re.findall(r'\d+', text):

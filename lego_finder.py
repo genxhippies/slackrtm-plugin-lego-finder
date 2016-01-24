@@ -36,6 +36,8 @@ def get_product_info(pn):
 def _process_text(text, channel):
     logging.info('[Process text] %s'%text)
 
+    text = re.sub(r'<[^<>]*>','',text)
+
     try:
         for num in re.findall(r'\d+', text):
             p_info = get_product_info(num)

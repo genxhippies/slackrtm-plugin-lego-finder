@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import re
 import urllib2
 import traceback
@@ -7,6 +9,46 @@ import logging
 
 crontable = []
 outputs = []
+
+unit_string = [
+    '미터',
+    '밀리미터',
+    '센티미터',
+    '킬로미터',
+    '그램',
+    '킬로그램',
+    '시',
+    '분',
+    '초',
+    '개',
+    '일',
+    '월',
+    '년',
+    'm',
+    'mm',
+    'cm',
+    'km',
+    'mi',
+    'mile',
+    'ft',
+    'inch',
+    'g',
+    'kg',
+    'ton[s]?',
+    'hour[s]?',
+    'min',
+    'minute[s]?',
+    'sec',
+    'second[s]?',
+    'year[s]?',
+    'month[s]?',
+    'day[s]?',
+]
+
+ignore_patterns = [
+    r'<[^<>]*>',        # tag
+    r'[0-9]+:[0-9]+',   # time format
+]
 
 def get_product_info(pn):
     r = {}
@@ -36,7 +78,11 @@ def get_product_info(pn):
 def _process_text(text, channel):
     logging.info('[Process text] %s'%text)
 
-    text = re.sub(r'<[^<>]*>','',text)
+    for igp in ignore_patterns:
+        text = re.sub(igp, '[REPL]', text)
+
+    for us in unit_string:
+        text = re.sub('[0-9]+[ \t]*%s'%us, '[REPL]', text)
 
     try:
         for num in re.findall(r'\d+', text):

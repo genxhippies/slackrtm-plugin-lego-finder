@@ -4,6 +4,7 @@ import re
 import urllib2
 import traceback
 import datetime
+import time
 
 import logging
 
@@ -45,6 +46,10 @@ unit_string = [
     'day[s]?',
 ]
 
+search_history = []
+MAX_HISTORY_LENGTH = 5
+HISTORY_LIVE_TIME = 60
+
 ignore_patterns = [
     r'<[^<>]*>',        # tag
     r'[0-9]+:[0-9]+',   # time format
@@ -84,11 +89,28 @@ def _process_text(text, channel):
     for us in unit_string:
         text = re.sub('[0-9]+[ \t]*%s'%us, '[REPL]', text)
 
+    while len(search_history)>0 and (time.time()-search_history[0]['time'])>HISTORY_LIVE_TIME:
+        search_history.pop(0)
+
+    search_history_map = {sh["code"]:True for sh in search_history}
     try:
         for num in re.findall(r'\d+', text):
+            if search_history_map.get(num):
+                outputs.append([channel, "{pn} : already searched".format(pn = num)])
+                continue
+
             p_info = get_product_info(num)
 
             if p_info['found']:
+                if len(search_history)>MAX_HISTORY_LENGTH:
+                    outputs.append([channel, "I do not want to be a spambot"])
+                    return
+
+                search_history.append({
+                    'code':num,
+                    'time':time.time()
+                })
+
                 print "[" + str(datetime.datetime.now()) + "] " + num + ": " + p_info['title']
                 outputs.append([channel, "{pn} : {name}".format(pn = num, name = p_info['title'])])
                 outputs.append([channel, "{url}".format(url = p_info['url'])])

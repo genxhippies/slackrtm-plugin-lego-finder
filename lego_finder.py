@@ -111,7 +111,7 @@ def _process_text(text, channel):
                     'time':time.time()
                 })
 
-                print "[" + str(datetime.datetime.now()) + "] " + num + ": " + p_info['title']
+                logging.info( num + ": " + p_info['title'] )
                 outputs.append([channel, "{pn} : {name}".format(pn = num, name = p_info['title'])])
                 outputs.append([channel, "{url}".format(url = p_info['url'])])
                 if 'image' in p_info:

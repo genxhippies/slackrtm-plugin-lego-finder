@@ -13,11 +13,18 @@ outputs = []
 
 unit_string = [
     u'미터',
-    u'밀리미터',
-    u'센티미터',
-    u'킬로미터',
+    u'밀리',
+    u'센티',
+    u'킬로',
     u'그램',
-    u'킬로그램',
+    u'메가',
+    u'기가',
+    u'테라',
+    u'펩타',
+    u'나노',
+    u'밀리',
+    u'마이크로',
+    u'센티',
     u'시',
     u'분',
     u'초',
@@ -25,7 +32,20 @@ unit_string = [
     u'일',
     u'월',
     u'년',
-    'm',
+    u'원',
+    u'달러',
+    u'엔',
+    u'위안',
+    u'유로',
+    u'억',
+    u'만원',
+    u'천',
+    u'백',
+    u'십',
+    u'원',
+    u'\$',
+    'm$',
+    'm[ \t]+',
     'mm',
     'cm',
     'km',
@@ -44,6 +64,10 @@ unit_string = [
     'year[s]?',
     'month[s]?',
     'day[s]?',
+]
+
+prefix_string=[
+    '\$'
 ]
 
 search_history = []
@@ -88,6 +112,8 @@ def _process_text(text, channel):
 
     for us in unit_string:
         text = re.sub('[0-9]+[ \t]*%s'%us, '[REPL]', text)
+    for us in prefix_string:
+        text = re.sub('%s[ \t]*[0-9]+'%us, '[REPL]', text)
 
     while len(search_history)>0 and (time.time()-search_history[0]['time'])>HISTORY_LIVE_TIME:
         search_history.pop(0)

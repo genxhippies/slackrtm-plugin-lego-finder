@@ -5,6 +5,7 @@ import urllib2
 import traceback
 import datetime
 import time
+import json
 
 import logging
 
@@ -82,24 +83,23 @@ ignore_patterns = [
 def get_product_info(pn):
     r = {}
     opener = urllib2.build_opener()
-    url = 'https://alpha.bricklink.com/pages/clone/catalogitem.page?S={pn}'.format(pn = pn)
+    #url = 'https://alpha.bricklink.com/pages/clone/catalogitem.page?S={pn}'.format(pn = pn)
+    url = 'http://iizs.net/legosrch/api/v1/item_number/{pn}/'.format(pn = pn)
     r['url'] = url
 
     request = urllib2.Request(url)
     request.add_header('User-Agent', 'LegoBot/1.0 +http://iizs.slack.com/')
     body = opener.open(request).read()
 
-    r['found'] = False
-    if body.find('No Item(s) were found') == -1 :
-        m_name = re.search("strItemName:\s+'([^']+)'", body)
-        if m_name == None:
-            r['found'] = False
-        else:
-            r['found'] = True
-            r['title'] = m_name.group(1)
-            m_image = re.search("_var_images.push\( { isBig: true, url: '([^']+)'", body)
-            if m_image != None:
-                r['image'] = "https:" + m_image.group(1)
+    legosrch_resp = json.loads(body)
+   
+    if len(legosrch_resp['items']) == 0:
+        r['found'] = False
+    else:
+        # XXX: legosrch returns 1 or more item info. but legobot only accepts 1st one
+        r['found'] = True
+        r['title'] = legosrch_resp['items'][0]['title']
+        r['image'] = legosrch_resp['items'][0]['image']
 
     return r
 

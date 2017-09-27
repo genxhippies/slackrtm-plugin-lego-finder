@@ -1,0 +1,81 @@
+diff --git a/rtmbot.py b/rtmbot.py
+index 3bd4184..5db0232 100755
+--- a/rtmbot.py
++++ b/rtmbot.py
+@@ -13,6 +13,7 @@ import logging
+ from argparse import ArgumentParser
+ 
+ from slackclient import SlackClient
++from websocket._exceptions import *
+ 
+ def dbg(debug_string):
+     if debug:
+@@ -60,7 +61,7 @@ class RtmBot(object):
+                     if limiter == True:
+                         time.sleep(.1)
+                         limiter = False
+-                    message = output[1].encode('ascii','ignore')
++                    message = output[1]#.encode('ascii','ignore')
+                     channel.send_message("{}".format(message))
+                     limiter = True
+     def crons(self):
+@@ -94,7 +95,8 @@ class Plugin(object):
+         if 'crontable' in dir(self.module):
+             for interval, function in self.module.crontable:
+                 self.jobs.append(Job(interval, eval("self.module."+function)))
+-            logging.info(self.module.crontable)
++            # too verbose log message. comment out
++            #logging.info(self.module.crontable)
+             self.module.crontable = []
+         else:
+             self.module.crontable = []
+@@ -155,15 +157,17 @@ class UnknownChannel(Exception):
+ 
+ 
+ def main_loop():
+-    if "LOGFILE" in config:
+-        logging.basicConfig(filename=config["LOGFILE"], level=logging.INFO, format='%(asctime)s %(message)s')
+-    logging.info(directory)
+-    try:
+-        bot.start()
+-    except KeyboardInterrupt:
+-        sys.exit(0)
+-    except:
+-        logging.exception('OOPS')
++    while True:
++        try:
++            bot = RtmBot(config["SLACK_TOKEN"])
++            bot.start()
++        except KeyboardInterrupt:
++            sys.exit(0)
++        except WebSocketConnectionClosedException:
++            logging.exception('WebSocketConnectionClosedException')
++        except Exception as e:
++            logging.exception('OOPS' + e.__class__.__name__)
++            sys.exit(0)
+ 
+ 
+ def parse_args():
+@@ -177,6 +181,7 @@ def parse_args():
+     return parser.parse_args()
+ 
+ 
++debug = None
+ if __name__ == "__main__":
+     args = parse_args()
+     directory = os.path.dirname(sys.argv[0])
+@@ -187,10 +192,10 @@ if __name__ == "__main__":
+ 
+     config = yaml.load(file(args.config or 'rtmbot.conf', 'r'))
+     debug = config["DEBUG"]
+-    bot = RtmBot(config["SLACK_TOKEN"])
+-    site_plugins = []
+-    files_currently_downloading = []
+-    job_hash = {}
++
++    if "LOGFILE" in config:
++        logging.basicConfig(filename=config["LOGFILE"], level=logging.INFO, format='[%(asctime)s] (%(levelname)s) %(module)s: %(message)s')
++    logging.info(directory)
+ 
+     if config.has_key("DAEMON"):
+         if config["DAEMON"]:

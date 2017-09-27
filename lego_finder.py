@@ -138,7 +138,7 @@ def _process_text(text, channel):
                 })
 
                 logging.info( num + ": " + p_info['title'] )
-                outputs.append([channel, "{pn} : {name}".format(pn = num, name = p_info['title'])])
+                outputs.append([channel, "{pn} : {name}".format(pn = num, name = p_info['title'].encode('utf8'))])
                 outputs.append([channel, "{url}".format(url = p_info['url'])])
                 if 'image' in p_info:
                     outputs.append([channel, "{image}".format(image = p_info['image'])])

@@ -141,7 +141,8 @@ def _process_text(text, channel):
                 outputs.append([channel, "{pn} : {name}".format(pn = num, name = p_info['title'].encode('utf8'))])
                 outputs.append([channel, "{url}".format(url = p_info['url'])])
                 if 'image' in p_info:
-                    outputs.append([channel, "{image}".format(image = p_info['image'])])
+                    if len(p_info['image']) > 0:
+                        outputs.append([channel, "{image}".format(image = p_info['image'][0])])
     except Exception as e:
         print traceback.format_exc()
         raise e
